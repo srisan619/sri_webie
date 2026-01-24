@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <h2>User List</h2>
+    <a href="/users/create/">Create</a>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for u in users %}
+        <tr>
+            <td>{{u.username}}</td>
+            <td>{{u.email}}</td>
+            <td>{{u.role}}</td>
+            <td>
+                {% if request.user.role.role_name == "admin" %}
+                <a href="/users/{{u.id}}/edit/">Edit</a>
+                <a href="/users/{{u.id}}/delete/">Delete</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

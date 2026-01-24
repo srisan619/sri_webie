@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import AuditLog
+from .models import AuditLog, User
 
 def dashboard(request):
     if request.user.is_authenticated and request.user.role:
@@ -53,7 +53,7 @@ def is_auditor(user):
 @login_required
 def admin_only_view(request):
     if not is_admin(request.user):
-        return HttpResponse("Access Denied", status=403)
+        return HttpResponseForbidden("Access Denied")
     return HttpResponse("Admin Access Granted")
 
 @login_required
@@ -65,7 +65,15 @@ def auditor_view(request):
 @login_required
 def audit_logs(request):
     if not is_auditor(request.user):
-        return HttpResponse("Access Denied", status=403)
+        return HttpResponseForbidden("Access Denied")
 
     logs = AuditLog.objects.all()
     return HttpResponse(request, "users/audit_logs.html", {"logs": logs})
+
+@login_required
+def user_list(request):
+    if not (is_admin(request.user) or is_auditor(request.user)):
+        return HttpResponseForbidden("Access Denied")
+    
+    users = User.objects.all()
+    return render(request, "users/user_list.html", {"users": users})

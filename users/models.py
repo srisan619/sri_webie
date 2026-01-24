@@ -17,6 +17,11 @@ class User(AbstractUser):
     groups = models.ManyToManyField('auth.Group', related_name='custom_user_set', blank=True, help_text='The groups this user belongs to', verbose_name='groups')
     user_permissions = models.ManyToManyField('auth.Permission', related_name='custom_user_set', blank=True, help_text='Specific permissions for this user.', verbose_name='user permissions')
 
+    def save(self, *args, **kwargs):
+        if self.password and not self.password.startswith(('pbkdf2_sha256$', 'bcrypt$', 'argon2')):
+            self.set_password(self.password)
+        super().save(*args, **kwargs)
+
 class AuditLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=100)
