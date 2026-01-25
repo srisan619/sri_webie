@@ -7,3 +7,8 @@ class UserCreateForm(UserCreationForm):
         model = User
         fields = ["username", "email", "role", "is_active"]
         
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "email", "role", "is_active"]

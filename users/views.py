@@ -1,16 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import AuditLog, User
+from .forms import UserCreateForm, UserUpdateForm
+from django.contrib import messages
 
 def dashboard(request):
-    if request.user.is_authenticated and request.user.role:
-        if request.user.role.role_name == "admin":
-            return HttpResponse("Welcome Admin")
-        elif request.user.role.role_name == "auditor":
-            return HttpResponse("Welcome Auditor(Read only)")
-    return HttpResponse("Welcome user")
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'users/dashboard.html')
 
 def user_login(request):
     if request.method == 'POST':
@@ -77,3 +76,59 @@ def user_list(request):
     
     users = User.objects.all()
     return render(request, "users/user_list.html", {"users": users})
+
+@login_required
+def user_create(request):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can access")
+    
+    form = UserCreateForm(request.POST or None)
+    if form.is_valid():
+        user = form.save()
+        messages.success(request, f"User {user.username} created successfully.")
+        return redirect("user_list")
+    
+    return render(request, "users/user_form.html", {"form": form})
+
+
+@login_required
+def user_update(request, pk):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can access")
+    
+    user = get_object_or_404(User, pk=pk)
+    form = UserUpdateForm(request.POST or None, instance=user)
+
+    if form.is_valid():
+        user = form.save()
+        messages.success(request, f"User {user.username} updated successfully.")
+        return redirect("user_list")
+    
+    return render(request, "users/user_form.html", {"form": form})
+
+# @login_required
+# def user_delete(request, pk):
+#     if not is_admin(request.user):
+#         return HttpResponseForbidden("Admins only can access")
+    
+#     user = get_object_or_404(User, pk=pk)
+#     user.delete()
+#     return redirect("user_list")
+
+@login_required
+def user_toggle_status(request, pk):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can access")
+    
+    user = get_object_or_404(User, pk=pk)
+
+    #prevent admin from deactivating himself
+    if user==request.user:
+        messages.warning(request, "You cannot deactivated your own account.")
+        return redirect("user_list")
+    
+    user.is_active = not user.is_active  
+    
+    messages.success(request, f"User {user.username} {'activated' if user.is_active else 'deactivated'} successfully.")
+    user.save()
+    return redirect("user_list")

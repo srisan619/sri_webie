@@ -8,7 +8,12 @@
     <div class="card p-4 shadow">
         <h3>Welcome {{request.user.username}}</h3>
         <p>Role: {{request.user.role.role_name}}</p>
-        <a href="/logout/" class="btn btn-danger">Logout</a>
+        <div>
+            {% if request.user.role.role_name == "admin" %}
+                <a href="/users/" class="btn btn-primary">User List</a>
+            {% endif %}
+            <a href="/logout/" class="btn btn-danger">Logout</a>
+        </div>
     </div>    
 </body>
 </html>
