@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import AuditLog, User
-from .forms import UserCreateForm, UserUpdateForm
+from .models import AuditLog, User, Role
+from .forms import UserCreateForm, UserUpdateForm, RoleForm
 from django.contrib import messages
 
 def dashboard(request):
@@ -132,3 +132,53 @@ def user_toggle_status(request, pk):
     messages.success(request, f"User {user.username} {'activated' if user.is_active else 'deactivated'} successfully.")
     user.save()
     return redirect("user_list")
+
+@login_required
+def role_list(request):
+    if not (is_admin(request.user) or is_auditor(request.user)):
+        return HttpResponseForbidden("Access Denied")
+    
+    roles = Role.objects.all()
+    return render(request, "users/role_list.html", {"roles": roles})
+
+@login_required
+def role_create(request):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can access")
+    
+    form = RoleForm(request.POST or None)
+    if form.is_valid():
+        role = form.save()
+        messages.success(request, f"Role {role.role_name} created successfully")
+        return redirect("role_list")
+    
+    return render(request, "users/role_form.html", {"form": form})
+
+@login_required
+def role_update(request, pk):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can access")
+    
+    role = get_object_or_404(Role, pk=pk)
+    form = RoleForm(request.POST or None, instance=role)
+    if form.is_valid():
+        form.save()
+        messages.success(request, f"Role {role.role_name} created successfully")
+        return redirect("role_list")
+    
+    return render(request, "users/role_form.html", {"form": form})
+
+@login_required
+def role_delete(request,pk):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Admins only can delete")
+    
+    role = get_object_or_404(Role, pk=pk)
+    
+    if role.users.exists():
+        messages.error(request, "Role is assigned to users and cannot be deleted.")
+        return redirect("role_list")
+    
+    role.delete()
+    messages.success(request, "Role deleted successfully.")
+    return redirect("role_list")

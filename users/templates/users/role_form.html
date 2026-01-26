@@ -1,0 +1,38 @@
+<style>
+    /* Style the paragraph containers */
+form p {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style the labels */
+form p label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+/* Style the inputs */
+form p input, form p select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+</style>
+{% extends "users/base.html" %}
+
+{% block title %}Role Form{% endblock %}
+
+{% block content %} 
+    <div class="container mt-5">
+        <div class="card p-4 shadow">
+            <h3>Role Form</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+{%endblock%}
