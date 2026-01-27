@@ -1,0 +1,16 @@
+{%extends "users/base.html"%}
+
+{%block title%}Upload Document{%endblock%}
+
+{%block content%}
+    <h3>Upload Document</h3>
+    <form method="post" class="card p-4 shadow" enctype="multipart/form-data">
+        {%csrf_token%}
+        {{form.as_p}}
+        <div>
+            <button class="btn btn-success">Upload</button>
+            <a href="/documents/" class="btn btn-secondary">Cancel</a>
+        </div>
+        
+    </form>
+{%endblock%}

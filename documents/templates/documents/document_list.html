@@ -1,0 +1,36 @@
+{%extends "users/base.html"%}
+
+{%block title%}Document List{%endblock%}
+
+{%block content%}
+    {%if request.user.role.role_name != "auditor"%}
+        <a href="/documents/upload/" class="btn btn-primary mb-3">
+            Upload Document
+        </a>
+    {%endif%}
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>File</th>
+                <th>Uploaded by</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for d in documents%}
+                <tr>
+                    <td>{{d.title}}</td>
+                    <td>
+                        <a href="{{d.file.url}}" target="_blank" class="btn btn-sm btn-info">
+                            View/Download
+                        </a>
+                    </td>
+                    <td>{{d.uploaded_by}}</td>
+                    <td>{{d.uploaded_at|date:"d-m-Y H:i"}}</td>
+                </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+{%endblock%}
