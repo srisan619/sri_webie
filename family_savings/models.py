@@ -1,12 +1,12 @@
 from django.db import models
 from users.models import User
 
-class FamilyMember(models.Model):
-    full_name = models.CharField(max_length=100)
-    is_active = models.BooleanField(default=True)
+# class FamilyMember(models.Model):
+#     full_name = models.CharField(max_length=100)
+#     is_active = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.full_name
+#     def __str__(self):
+#         return self.full_name
 
 class MonthlySaving(models.Model):
     MONTHS = [
@@ -18,8 +18,13 @@ class MonthlySaving(models.Model):
     month = models.IntegerField(choices=MONTHS)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True, help_text="When this record was created")
+    updated_at = models.DateTimeField(auto_now=True, help_text="When this record was last updated")
+
     class Meta:
         unique_together = ("user", "year", "month")
 
     def __str__(self):
+        # Show username and month/year for easier identification
         return f"{self.user.username} - {self.month}/{self.year}"
