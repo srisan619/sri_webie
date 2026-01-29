@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'documents'
+    'documents',
+    'family_savings'
 ]
 
 MIDDLEWARE = [
