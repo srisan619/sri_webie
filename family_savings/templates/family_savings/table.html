@@ -24,14 +24,58 @@
                     {% if is_readonly %}
                         {{amount|default:"-"}}
                     {%else%}
-                        <input type="number" class="form-control form-control-sm" value="{{amount}}" data-member="{{row.member.id}}" data-month="{{month}}">
+                        <input type="number" class="form-control form-control-sm saving-input" value="{{amount}}" data-user="{{row.user.id}}" data-month="{{month}}" step="0.01">
                     {%endif%}                    
                 </td>
                 {%endfor%}
 
-                <td class="fw-bold">{{row.total}}</td>
+                <td class="fw-bold row-total">{{row.total}}</td>
             </tr>
         {%endfor%}
     </tbody>
 </table>
+<script>
+    document.querySelectorAll(".saving-input").forEach(input=>{
+        input.addEventListener("change", function(){
+            const userId = this.dataset.user;
+            const month= this.dataset.month;
+            const year= "{{year}}";
+            const amount= this.value;
+
+            fetch("{%url 'save_monthly_saving'%}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{csrf_token}}",
+                    "content-type": "application/x-www-form-urlencoded"
+                },
+
+                body: new URLSearchParams({
+                    user_id: userId,
+                    month: month,
+                    year: year,
+                    amount: amount
+                })
+            })
+            .then(response=> response.json())
+            .then(data=>{
+                if (data.success){
+                    const row = this.closest('tr');
+                    let total = 0;
+                    row.querySelectorAll('.saving-input').forEach(i=>{
+                        total += parseFloat(i.value || 0);
+                    })
+                    // row.querySelector('.row_total').innerText=total.toFixed(2);
+                    row.querySelector('.row-total').textContent = total.toFixed(2);
+                }
+                else {
+                    alert("Error saving data");
+                }
+            })
+            .catch(error=>{
+                console.error('Save error:', error);
+                alert("Failed to save: " + (error.error || error.message || error));
+            });
+        })
+    })
+</script>
 {%endblock%}
