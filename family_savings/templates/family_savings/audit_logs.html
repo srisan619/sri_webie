@@ -1,0 +1,38 @@
+{%extends "users/base.html" %}
+
+{%block content%}
+    <h4>Family Savings - Audit Logs</h4>
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Changed By</th>
+                <th>Affected User</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Old Amount</th>
+                <th>New Amount</th>
+                <th>Changed At</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{log.changed_by.username}}</td>
+                    <td>{{log.affected_by.username}}</td>
+                    <td>{{log.month}}</td>
+                    <td>{{log.year}}</td>
+                    <td class="text-danger">{{log.old_amount}}</td>
+                    <td class="text-success">{{log.new_amount}}</td>
+                    <td>{{log.changed_at|date:"Y-m-d"}}</td>
+                </tr>
+                {%empty%}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        No audit records found
+                    </td>
+                </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+{%endblock%}

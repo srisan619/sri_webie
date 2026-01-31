@@ -28,3 +28,19 @@ class MonthlySaving(models.Model):
     def __str__(self):
         # Show username and month/year for easier identification
         return f"{self.user.username} - {self.month}/{self.year}"
+
+class SavingsAuditLog(models.Model):
+    changed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="savings_changes"
+    )
+    affected_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="affected_savings"
+    )
+    old_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    new_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    month = models.IntegerField()
+    year = models.IntegerField()
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.changed_by} -> {self.affected_by} ({self.month}/{self.year})"

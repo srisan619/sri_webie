@@ -36,9 +36,9 @@
                                 <a href="/roles/" class="nav-link">Roles</a>
                             </li>
                         {%endif%}
-                        {% if request.user.role.role_name == "auditor" %}
+                        {% if request.user.role.role_name == "admin" %}
                             <li class="nav-item">
-                                <a href="/audit-logs/" class="nav-link">Audit Logs</a>
+                                <a href="/family-savings/audit-logs/" class="nav-link">Savings Audit Logs</a>
                             </li>
                         {%endif%}
                         <li class="nav-item">

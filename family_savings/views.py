@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from .models import MonthlySaving
+from django.http import JsonResponse, HttpResponseForbidden
+from .models import MonthlySaving, SavingsAuditLog
 from users.models import User
 from django.contrib.auth.decorators import login_required
-from users.views import is_auditor
+from users.views import is_auditor, is_admin
 from decimal import Decimal
 
 @login_required
@@ -37,7 +37,7 @@ def family_savings_view(request):
         "data": data,
         "year": year,
         "months": MONTHS,
-        "is_readonly": is_auditor(request.user)
+        "is_admin": is_admin(request.user)
     })
 
 @require_POST
@@ -50,7 +50,7 @@ def save_monthly_saving(request):
     month = int(request.POST.get('month'))
     year = int(request.POST.get('year'))
     amount = Decimal(request.POST.get('amount', 0))
-
+    affected_user = User.objects.get(id=user_id)
     saving, created = MonthlySaving.objects.get_or_create(
         user_id=user_id,
         year=year,
@@ -58,11 +58,32 @@ def save_monthly_saving(request):
         defaults={"amount": amount}
     )
 
-    if not created:
+    old_amount = saving.amount if not created else 0
+    if old_amount != amount:
         saving.amount = amount
         saving.save()
+
+        SavingsAuditLog.objects.create(
+            changed_by=request.user,
+            affected_by = affected_user,
+            year=year,
+            month=month,
+            old_amount=old_amount,
+            new_amount=amount
+        )
 
     return JsonResponse({
         "success": True,
         "amount": str(saving.amount)
     })
+
+@login_required
+def savings_audit_log(request):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Access Denied")
+    
+    logs = SavingsAuditLog.objects.select_related(
+        "changed_by", "affected_by"
+    ).order_by("changed_at")
+
+    return render(request, "family_savings/audit_logs.html", {"logs": logs})
