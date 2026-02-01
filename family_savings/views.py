@@ -79,6 +79,9 @@ def save_monthly_saving(request):
 
 @login_required
 def savings_audit_log(request):
+    MONTHS = [
+        (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
+    ]
     if not is_admin(request.user):
         return HttpResponseForbidden("Access Denied")
     
@@ -86,4 +89,25 @@ def savings_audit_log(request):
         "changed_by", "affected_by"
     ).order_by("changed_at")
 
-    return render(request, "family_savings/audit_logs.html", {"logs": logs})
+    # Filters
+    user_id = request.GET.get('user')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+    
+    if user_id:
+        logs = logs.filter(affected_by=user_id)
+    if month:
+        logs = logs.filter(month=month)
+    if year:
+        logs = logs.filter(year=year)
+    
+    users = User.objects.filter(is_active=True)
+    
+    return render(request, "family_savings/audit_logs.html", {
+        "logs": logs,
+        "users": users,
+        "selected_user": user_id,
+        "months": MONTHS,
+        "selected_month": month,
+        "selected_year": year
+        })

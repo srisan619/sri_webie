@@ -2,6 +2,40 @@
 
 {%block content%}
     <h4>Family Savings - Audit Logs</h4>
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label for="user">User</label>
+            <select name="user" id="user" class="form-select">
+                <option value="">All</option>
+                {%for u in users%}
+                    <option value="{{u.id}}" {% if selected_user == u.id|stringformat:"s" %}selected{%endif%}>
+                        {{u.username}}
+                    </option>
+                {%endfor%}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="month">Month</label>
+            <select name="month" id="month" class="form-select">
+                <option value="">All</option>
+                {% for month_no, month_name in months %}
+                    <option value="{{month_no}}" {%if selected_month == month_no|stringformat:"s" %}selected{%endif%}>
+                        {{month_name}}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="year">Year</label>
+            <input type="number" name="year" class="form-control" placeholder="YYYY" value="{{selected_year}}">
+        </div>
+
+        <div class="col-md-3 d-flex">
+            <button class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
     <table class="table table-bordered table-striped mt-3">
         <thead class="table-dark">
             <tr>
