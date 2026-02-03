@@ -36,6 +36,14 @@
             <button class="btn btn-primary w-100">Filter</button>
         </div>
     </form>
+
+    <!-- Export XLS -->
+     <div class="mb-3">
+        <a href="{% url 'export_audit_logs' %}" class="btn btn-success btn-sm">
+            Export Excel
+        </a>
+     </div>
+
     <table class="table table-bordered table-striped mt-3">
         <thead class="table-dark">
             <tr>

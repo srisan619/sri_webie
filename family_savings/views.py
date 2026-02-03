@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from .models import MonthlySaving, SavingsAuditLog
 from users.models import User
 from django.contrib.auth.decorators import login_required
 from users.views import is_auditor, is_admin
 from decimal import Decimal
+from openpyxl import Workbook
+from django.db.models import Sum
 
 @login_required
 def family_savings_view(request):
@@ -19,6 +21,8 @@ def family_savings_view(request):
     ).exclude(role__role_name="auditor")
 
     data = []
+    
+    monthly_totals = {m: 0 for m in range(1,13)}
 
     for user in users:
         row = {"user": user, "months": {}, "total": 0}
@@ -30,13 +34,16 @@ def family_savings_view(request):
             amount = saving.amount if saving else 0
             row["months"][m] = amount
             row["total"] += amount
-        
+            monthly_totals[m] += amount
         data.append(row)
-    
+    # breakpoint()
     return render(request, "family_savings/table.html", {
         "data": data,
         "year": year,
         "months": MONTHS,
+        "monthly_totals": monthly_totals,
+        "sum_monthly_totals": sum(monthly_totals.values()),
+        "years": [2023, 2024, 2025],
         "is_admin": is_admin(request.user)
     })
 
@@ -87,7 +94,7 @@ def savings_audit_log(request):
     
     logs = SavingsAuditLog.objects.select_related(
         "changed_by", "affected_by"
-    ).order_by("changed_at")
+    ).order_by("-changed_at")
 
     # Filters
     user_id = request.GET.get('user')
@@ -111,3 +118,45 @@ def savings_audit_log(request):
         "selected_month": month,
         "selected_year": year
         })
+
+@login_required
+def export_audit_logs(request):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Access Denied")
+    
+    logs = SavingsAuditLog.objects.all().order_by("-changed_at")
+    if request.GET.get("user"):
+        logs = logs.filter(affected_by=request.Get["user"])
+    if request.GET.get("month"):
+        logs = logs.filter(month=request.GET["month"])
+    if request.GET.get("year"):
+        logs = logs.filter(year=request.GET["year"])
+
+    # create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Audit Logs"
+
+    ws.append([
+        "Changed By", "Family Member", "Month", 
+        "Year", "Old Amount", "New Amount", "Changed At"
+    ])
+
+    for log in logs:
+        ws.append([
+            log.changed_by.username if log.changed_by else "",
+            log.affected_by.username,
+            log.month,
+            log.year,
+            float(log.old_amount),
+            float(log.new_amount),
+            log.changed_at.strftime("%Y-%m-%d %H:%M:%S")
+        ])
+
+    response = HttpResponse(
+        content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = "attachment; filename=audit_logs.xlsx"
+    wb.save(response)
+
+    return response

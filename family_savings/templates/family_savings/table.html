@@ -3,6 +3,21 @@
 
 {%block content%}
 <h4>Family Savings - {{year}}</h4>
+<form method="get" class="mb-3 d-flex gap-2">
+    <select name="year" class="form-select w-auto">
+        {% for y in years %}
+            <option value="{{ y }}"
+                {% if y == year %}selected{% endif %}>
+                {{ y }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-primary btn-sm">
+        Load
+    </button>
+</form>
+
 <table class="table table-bordered text-center">
     <thead class="table-light">
         <tr>
@@ -33,6 +48,15 @@
             </tr>
         {%endfor%}
     </tbody>
+    <tfoot class="table-warning fw-bold">
+        <tr>
+            <td>Monthly Total</td>
+            {% for month, total in monthly_totals.items %}
+                <td>{{total}}</td>
+            {% endfor %}
+            <td>{{sum_monthly_totals}}</td>
+        </tr>
+    </tfoot>
 </table>
 {% if is_admin %}
     <script>
