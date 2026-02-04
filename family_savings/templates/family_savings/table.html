@@ -18,6 +18,13 @@
     </button>
 </form>
 
+<!-- Export XLS -->
+{% if is_admin %}
+<a href="{% url 'export_family_savings' %}?year={{year}}" class="btn btn-success btn-sm ms-2">
+    Export Excel
+</a>
+<br/><br/>
+{% endif %}
 <table class="table table-bordered text-center">
     <thead class="table-light">
         <tr>

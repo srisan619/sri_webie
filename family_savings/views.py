@@ -8,13 +8,17 @@ from users.views import is_auditor, is_admin
 from decimal import Decimal
 from openpyxl import Workbook
 from django.db.models import Sum
+from datetime import date
 
 @login_required
 def family_savings_view(request):
     MONTHS = [
         (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
     ]
-    year = int(request.GET.get("year", 2025))
+    start_year = 2020
+    current_year = date.today().year
+    year = int(request.GET.get("year", current_year))
+    years = list(range(current_year, start_year-1, -1))
 
     users = User.objects.filter(
         is_active=True
@@ -43,7 +47,7 @@ def family_savings_view(request):
         "months": MONTHS,
         "monthly_totals": monthly_totals,
         "sum_monthly_totals": sum(monthly_totals.values()),
-        "years": [2023, 2024, 2025],
+        "years": years,
         "is_admin": is_admin(request.user)
     })
 
@@ -159,4 +163,52 @@ def export_audit_logs(request):
     response["Content-Disposition"] = "attachment; filename=audit_logs.xlsx"
     wb.save(response)
 
+    return response
+
+
+@login_required
+def export_family_savings(request):
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Access Denied")
+    
+    year = int(request.GET.get("year", date.today().year))
+    users = User.objects.filter(
+        is_active=True,
+    ).exclude(role__role_name="auditor")
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Family Savings {year}"
+
+    header = ["Family Member"] + [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec","Total"
+    ]
+
+    ws.append(header)
+
+    for user in users:
+        row = [user.username]
+        total = 0
+
+        for m in range(1,13):
+            saving = MonthlySaving.objects.filter(
+                user=user, year=year, month=m
+            ).first()
+            amount = saving.amount if saving else 0
+            row.append(float(amount))
+            total += amount
+        
+        row.append(float(total))
+        ws.append(row)
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"]=(
+        f"attachment;  filename=family_savings_{year}.xlsx"
+    )
+
+    wb.save(response)
     return response
