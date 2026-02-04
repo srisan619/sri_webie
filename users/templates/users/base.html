@@ -36,16 +36,24 @@
                                 <a href="/roles/" class="nav-link">Roles</a>
                             </li>
                         {%endif%}
-                        {% if request.user.role.role_name == "admin" %}
-                            <li class="nav-item">
-                                <a href="/family-savings/audit-logs/" class="nav-link">Savings Audit Logs</a>
-                            </li>
-                        {%endif%}
-                        <li class="nav-item">
-                            <a href="/documents/" class="nav-link">Documents</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/family-savings/" class="nav-link">Family Savings</a>
+                        
+                        
+                        
+                        <li class="nav-item dropdown active">
+                            <a class="nav-link dropdown-toggle" href="#" id="family-savings-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" >Family Savings</a>
+                            <ul class="dropdown-menu" aria-labelledby="family-savings-dropdown">
+                                <li >
+                                    <a href="/family-savings/" class="dropdown-item">Monthly Savings</a>
+                                </li>
+                                {% if request.user.role.role_name == "admin" %}
+                                    <li>
+                                        <a href="/family-savings/audit-logs/" class="dropdown-item">Savings Audit Logs</a>
+                                    </li>
+                                {%endif%}
+                                <li>
+                                    <a href="/documents/" class="dropdown-item">Documents</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a href="/logout/" class="nav-link">Logout</a>
