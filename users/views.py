@@ -5,11 +5,44 @@ from django.contrib.auth.decorators import login_required
 from .models import AuditLog, User, Role
 from .forms import UserCreateForm, UserUpdateForm, RoleForm
 from django.contrib import messages
+from datetime import date
+from family_savings.models import MonthlySaving
+from django.db.models import Sum
 
+@login_required
 def dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    return render(request, 'users/dashboard.html')
+    MONTHS = [
+        (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
+    ]
+    current_year = date.today().year
+    year = int(request.GET.get("year", current_year))
+
+    #month wise totals
+    monthly_data = (
+        MonthlySaving.objects.filter(year=year).values("month").annotate(total=Sum("amount")).order_by("month")
+    )
+
+    month_totals = {m: 0 for m in range(1,13)}
+    for item in monthly_data:
+        month_totals[item["month"]] = item["total"] or 0
+
+    total_yearly = sum(month_totals.values())
+    avg_monthly = total_yearly/12 if total_yearly else 0
+
+    highest_month = max(month_totals, key=month_totals.get)
+    lowest_month = min(month_totals, key=month_totals.get)
+
+    years = list(range(2020, current_year+1))
+    return render(request, 'users/dashboard.html', {
+        "months": MONTHS,
+        "year": year,
+        "years": years,
+        "month_totals": month_totals,
+        "total_yearly": total_yearly,
+        "avg_monthly": round(avg_monthly, 2),
+        "highest_month": highest_month,
+        "lowest_month": lowest_month
+    })
 
 def user_login(request):
     if request.method == 'POST':
@@ -39,9 +72,9 @@ def user_logout(request):
     logout(request)    
     return redirect("login")
 
-@login_required
-def dashboard(request):
-    return render(request, "users/dashboard.html")
+# @login_required
+# def dashboard(request):
+#     return render(request, "users/dashboard.html")
 
 def is_admin(user):
     return user.role and user.role.role_name == 'admin'

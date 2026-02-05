@@ -17,7 +17,7 @@
     <!-- Header NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-info">
         <div class="container">
-            <a href="/dashboard/" class="navbar-brand">Sri Webie</a>
+            <a href="{%url 'dashboard'%}" class="navbar-brand">Sri Webie</a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -26,14 +26,14 @@
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <a href="/dashboard/" class="nav-link">Dashboard</a>
+                            <a href="{%url 'dashboard'%}" class="nav-link">Dashboard</a>
                         </li>
                         {% if request.user.role.role_name == "admin" %}
                             <li class="nav-item">
-                                <a href="/users/" class="nav-link">Users</a>
+                                <a href="{%url 'user_list'%}" class="nav-link">Users</a>
                             </li>
                             <li class="nav-item">
-                                <a href="/roles/" class="nav-link">Roles</a>
+                                <a href="{%url 'role_list'%}" class="nav-link">Roles</a>
                             </li>
                         {%endif%}
                         
@@ -43,24 +43,24 @@
                             <a class="nav-link dropdown-toggle" href="#" id="family-savings-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" >Family Savings</a>
                             <ul class="dropdown-menu" aria-labelledby="family-savings-dropdown">
                                 <li >
-                                    <a href="/family-savings/" class="dropdown-item">Monthly Savings</a>
+                                    <a href="{%url 'family_savings_view'%}" class="dropdown-item">Monthly Savings</a>
                                 </li>
                                 {% if request.user.role.role_name == "admin" %}
                                     <li>
-                                        <a href="/family-savings/audit-logs/" class="dropdown-item">Savings Audit Logs</a>
+                                        <a href="{%url 'savings_audit_log'%}" class="dropdown-item">Savings Audit Logs</a>
                                     </li>
                                 {%endif%}
                                 <li>
-                                    <a href="/documents/" class="dropdown-item">Documents</a>
+                                    <a href="{%url 'document_list'%}" class="dropdown-item">Documents</a>
                                 </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="/logout/" class="nav-link">Logout</a>
+                            <a href="{%url 'logout'%}" class="nav-link">Logout</a>
                         </li>
                     {%else%}
                         <li class="nav-item">
-                            <a href="/login/" class="nav-link">Login</a>
+                            <a href="{%url 'login'%}" class="nav-link">Login</a>
                         </li>                        
                     {%endif%}
                 </ul>

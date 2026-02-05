@@ -3,11 +3,82 @@
 
 {%block content%}
     <div class="card p-4 shadow">
-        <h3>Welcome {{request.user.username}}</h3>
+        <form method="get" class="mb-3">
+            <select name="year" id="year" class="form-select w-auto d-inline">
+                {% for y in years %}
+                    <option value="{{y}}" {% if y == year %}selected{% endif %}>
+                        {{y}}
+                    </option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary btn-sm">Load</button>
+        </form>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card text-bg-success">
+                    <div class="card-body">
+                        <h6>Total Savings</h6>
+                        <h4>{{total_yearly}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-bg-info">
+                    <div class="card-body">
+                        <h6>Avg / Month Savings</h6>
+                        <h4>{{avg_monthly}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-bg-primary">
+                    <div class="card-body">
+                        <h6>Highest Month savings</h6>
+                        <h4>{{highest_month}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-bg-warning">
+                    <div class="card-body">
+                        <h6>Lowest Month Savings</h6>
+                        <h4>{{lowest_month}}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- month wise summary table -->
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <tr>Month</tr>
+                    <tr>Total Savings</tr>
+                </tr>
+            </thead>
+            <tbody>
+                {% for month, total in month_totals.items %}
+                <tr>
+                    <td>
+                        {% for m_num, m_name in months %}
+                            {% if m_num == month %}
+                                {{ m_name }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{total}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <!-- <h3>Welcome {{request.user.username}}</h3>
         <p class="text-muted">Role: {{request.user.role.role_name}}</p>
-        <hr>
+        <hr> -->
         
-        {% if request.user.role.role_name == "admin" %}
+        <!-- {% if request.user.role.role_name == "admin" %}
             <div class="alert alert-success">
             You have full administrative access.
              </div>
@@ -20,7 +91,7 @@
                 Standard user access.
             </div>
         {% endif %}
-        <a href="/logout/" class="btn btn-danger">Logout</a>
+        <a href="/logout/" class="btn btn-danger">Logout</a> -->
         
     </div>
 {%endblock%}
