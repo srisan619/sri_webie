@@ -8,12 +8,10 @@ from django.contrib import messages
 from datetime import date
 from family_savings.models import MonthlySaving
 from django.db.models import Sum
+from common.constants import MONTHS, MONTH_NUMBERS
 
 @login_required
 def dashboard(request):
-    MONTHS = [
-        (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
-    ]
     current_year = date.today().year
     year = int(request.GET.get("year", current_year))
 
@@ -22,7 +20,7 @@ def dashboard(request):
         MonthlySaving.objects.filter(year=year).values("month").annotate(total=Sum("amount")).order_by("month")
     )
 
-    month_totals = {m: 0 for m in range(1,13)}
+    month_totals = {m: 0 for m in MONTH_NUMBERS}
     for item in monthly_data:
         month_totals[item["month"]] = item["total"] or 0
 

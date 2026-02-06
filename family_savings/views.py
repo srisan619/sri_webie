@@ -9,12 +9,10 @@ from decimal import Decimal
 from openpyxl import Workbook
 from django.db.models import Sum
 from datetime import date
+from common.constants import MONTHS, MONTH_NUMBERS
 
 @login_required
 def family_savings_view(request):
-    MONTHS = [
-        (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
-    ]
     start_year = 2020
     current_year = date.today().year
     year = int(request.GET.get("year", current_year))
@@ -26,7 +24,7 @@ def family_savings_view(request):
 
     data = []
     
-    monthly_totals = {m: 0 for m in range(1,13)}
+    monthly_totals = {m: 0 for m in MONTH_NUMBERS}
 
     for user in users:
         row = {"user": user, "months": {}, "total": 0}
@@ -90,9 +88,6 @@ def save_monthly_saving(request):
 
 @login_required
 def savings_audit_log(request):
-    MONTHS = [
-        (1, 'Jan'), (2, 'Feb'),(3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'), (9, 'Sep'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec')
-    ]
     if not is_admin(request.user):
         return HttpResponseForbidden("Access Denied")
     

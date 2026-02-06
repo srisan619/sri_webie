@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'documents',
-    'family_savings'
+    'family_savings',
+    'common'
 ]
 
 MIDDLEWARE = [
