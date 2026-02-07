@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import dashboard, user_login, user_logout, user_list,user_create,user_update,user_toggle_status,role_list,role_create,role_update,role_delete
+from .views import dashboard, user_login, user_logout, user_list,user_create,user_update,user_toggle_status,role_list,role_create,role_update,role_delete,audit_logs
 #, user_delete
 
 urlpatterns=[
@@ -15,5 +15,6 @@ urlpatterns=[
     path('roles/', role_list, name="role_list"),
     path('roles/create/', role_create, name="role_create"),
     path('roles/<pk>/edit/', role_update, name="role_update"),
-    path('roles/<pk>/delete/', role_delete, name="role_delete")
+    path('roles/<pk>/delete/', role_delete, name="role_delete"),
+    path('users/audit-logs/', audit_logs, name="audit_logs")
 ]

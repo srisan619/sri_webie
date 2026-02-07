@@ -8,6 +8,7 @@ from django.contrib import messages
 from datetime import date
 from family_savings.models import MonthlySaving
 from django.db.models import Sum
+from django.core.paginator import Paginator
 from common.constants import MONTHS, MONTH_NUMBERS
 
 @login_required
@@ -91,14 +92,6 @@ def auditor_view(request):
     if is_auditor(request.user):
         return HttpResponse("Read-only Access")
     return HttpResponse("User is not an auditor")
-
-@login_required
-def audit_logs(request):
-    if not is_auditor(request.user):
-        return HttpResponseForbidden("Access Denied")
-
-    logs = AuditLog.objects.all()
-    return HttpResponse(request, "users/audit_logs.html", {"logs": logs})
 
 @login_required
 def user_list(request):
@@ -213,3 +206,18 @@ def role_delete(request,pk):
     role.delete()
     messages.success(request, "Role deleted successfully.")
     return redirect("role_list")
+
+@login_required
+def audit_logs(request):
+    if request.user.role.role_name not in ['auditor', 'admin']:
+        return HttpResponseForbidden("Access Denied")
+
+    logs = AuditLog.objects.select_related("user").order_by("-timestamp")
+    paginator = Paginator(logs, 20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # return HttpResponse(request, "users/audit_logs.html", {"logs": logs})
+    return render(request, "users/audit_logs.html", {
+        "page_obj": page_obj
+    })

@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from django.db.models import Sum
 from datetime import date
 from common.constants import MONTHS, MONTH_NUMBERS
+from django.core.paginator import Paginator
 
 @login_required
 def family_savings_view(request):
@@ -107,15 +108,19 @@ def savings_audit_log(request):
     if year:
         logs = logs.filter(year=year)
     
+    paginator = Paginator(logs, 20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     users = User.objects.filter(is_active=True)
     
     return render(request, "family_savings/audit_logs.html", {
-        "logs": logs,
+        "logs": page_obj,
         "users": users,
         "selected_user": user_id,
         "months": MONTHS,
         "selected_month": month,
-        "selected_year": year
+        "selected_year": year,
+        "page_obj": page_obj
         })
 
 @login_required

@@ -28,16 +28,24 @@
                         <li class="nav-item">
                             <a href="{%url 'dashboard'%}" class="nav-link">Dashboard</a>
                         </li>
-                        {% if request.user.role.role_name == "admin" %}
-                            <li class="nav-item">
-                                <a href="{%url 'user_list'%}" class="nav-link">Users</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{%url 'role_list'%}" class="nav-link">Roles</a>
-                            </li>
-                        {%endif%}
-                        
-                        
+                        <li class="nav-item dropdown active">
+                            <a class="nav-link dropdown-toggle" href="#" id="users-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" >User Management</a>
+                            <ul class="dropdown-menu" aria-labelledby="users-dropdown">
+                                {% if request.user.role.role_name == "admin" %}
+                                    <li >
+                                        <a href="{%url 'user_list'%}" class="dropdown-item">Users</a>
+                                    </li>                                
+                                    <li>
+                                        <a href="{%url 'role_list'%}" class="dropdown-item">Roles</a>
+                                    </li>
+                                {%endif%}
+                                {% if request.user.role.role_name == "auditor" or request.user.role.role_name == "admin" %}
+                                    <li>
+                                        <a href="{%url 'audit_logs'%}" class="dropdown-item">User Audit Logs</a>
+                                    </li>
+                                {%endif%}
+                            </ul>
+                        </li>
                         
                         <li class="nav-item dropdown active">
                             <a class="nav-link dropdown-toggle" href="#" id="family-savings-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" >Family Savings</a>
