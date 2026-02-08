@@ -13,21 +13,36 @@
             </select>
             <button class="btn btn-primary btn-sm">Load</button>
         </form>
-
+        <h4 class="text-center mb-3">
+           <a href="{% url 'family_savings_view' %}?year={{year}}">{{year}} Monthly Savings</a> 
+        </h4>
         <div class="row g-3 mb-4">
             <div class="col-md-3">
                 <div class="card text-bg-success">
                     <div class="card-body">
                         <h6>Total Savings</h6>
-                        <h4>{{total_yearly}}</h4>
+                        <h4>₹ {{total_yearly}}</h4>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <!-- <div class="col-md-3">
                 <div class="card text-bg-info">
                     <div class="card-body">
                         <h6>Avg / Month Savings</h6>
-                        <h4>{{avg_monthly}}</h4>
+                        <h4>₹ {{avg_monthly}}</h4>
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-md-3">
+                <div class="card text-bg-danger">
+                    <div class="card-body">
+                        <h6>Lowest Paid Member</h6>
+                        {%if lowest_paid_member%}
+                            <h4>{{lowest_paid_member}} - <small>{{lowest_paid_amount}}</small></h4>
+                            
+                        {%else%}
+                            <small>No data</small>
+                        {%endif%}
                     </div>
                 </div>
             </div>

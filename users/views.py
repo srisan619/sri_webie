@@ -7,9 +7,13 @@ from .forms import UserCreateForm, UserUpdateForm, RoleForm
 from django.contrib import messages
 from datetime import date
 from family_savings.models import MonthlySaving
-from django.db.models import Sum
+from django.db.models import Sum, Value
 from django.core.paginator import Paginator
 from common.constants import MONTHS, MONTH_NUMBERS
+from django.db.models.functions import Coalesce
+from django.db import models
+from users.models import User
+from decimal import Decimal
 
 @login_required
 def dashboard(request):
@@ -21,17 +25,29 @@ def dashboard(request):
         MonthlySaving.objects.filter(year=year).values("month").annotate(total=Sum("amount")).order_by("month")
     )
 
+    user_totals = (
+        User.objects.filter(is_active=True).annotate(
+            total=Coalesce(Sum("savings__amount", filter=models.Q(savings__year=year)), Value(Decimal('0')), output_field=models.DecimalField()
+            )).exclude(role__role_name="auditor")
+        .order_by("total")
+    )
+    lowest_paid_member = None
+    lowest_paid_amount = 0
+    if user_totals.exists():
+        lowest_user = user_totals.first()
+        lowest_paid_member = lowest_user.first_name
+        lowest_paid_amount = lowest_user.total
+
     month_totals = {m: 0 for m in MONTH_NUMBERS}
     for item in monthly_data:
         month_totals[item["month"]] = item["total"] or 0
 
     total_yearly = sum(month_totals.values())
     avg_monthly = total_yearly/12 if total_yearly else 0
+    highest_month = MONTHS[max(month_totals, key=month_totals.get)-1][1]
+    lowest_month = MONTHS[min(month_totals, key=month_totals.get)-1][1]
 
-    highest_month = max(month_totals, key=month_totals.get)
-    lowest_month = min(month_totals, key=month_totals.get)
-
-    years = list(range(2020, current_year+1))
+    years = list(range(current_year, 2020, -1))
     return render(request, 'users/dashboard.html', {
         "months": MONTHS,
         "year": year,
@@ -40,7 +56,9 @@ def dashboard(request):
         "total_yearly": total_yearly,
         "avg_monthly": round(avg_monthly, 2),
         "highest_month": highest_month,
-        "lowest_month": lowest_month
+        "lowest_month": lowest_month,
+        "lowest_paid_member": lowest_paid_member,
+        "lowest_paid_amount": lowest_paid_amount
     })
 
 def user_login(request):

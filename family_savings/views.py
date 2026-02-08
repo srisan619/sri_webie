@@ -187,6 +187,9 @@ def export_family_savings(request):
 
     ws.append(header)
 
+    monthly_totals = [0] * 12
+    grand_total = 0
+
     for user in users:
         row = [user.username]
         total = 0
@@ -197,10 +200,20 @@ def export_family_savings(request):
             ).first()
             amount = saving.amount if saving else 0
             row.append(float(amount))
+
+            monthly_totals[m-1]+=amount            
             total += amount
         
         row.append(float(total))
+        grand_total+=total
         ws.append(row)
+    
+    total_row=["Monthly Total"]
+    for total in monthly_totals:
+        total_row.append(total)
+    
+    total_row.append(grand_total)
+    ws.append(total_row)
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
