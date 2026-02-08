@@ -30,7 +30,7 @@
         <tr>
             <th>Family Name</th>
             {% for month_no, month_name in months %}
-                <th>{{ month_name }} <input type="checkbox" class="default-amount" data-month="{{month_no}}" data-value="500" data-bs-toggle="tooltip" title="Check to apply ₹500 for all users in this month. Uncheck to set all users’ amount to ₹0."></th>                
+                <th>{{ month_name }} {% if request.user.role.role_name == "admin" %}<input type="checkbox" class="default-amount" data-month="{{month_no}}" data-value="500" data-bs-toggle="tooltip" title="Check to apply ₹500 for all users in this month. Uncheck to set all users’ amount to ₹0.">{% endif %}</th>                
             {% endfor %}
             <th class="table-warning">Total</th>
         </tr>
