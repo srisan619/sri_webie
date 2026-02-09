@@ -31,7 +31,9 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,7 +44,8 @@ INSTALLED_APPS = [
     'users',
     'documents',
     'family_savings',
-    'common'
+    'common',
+    "django_celery_beat"
 ]
 
 MIDDLEWARE = [
