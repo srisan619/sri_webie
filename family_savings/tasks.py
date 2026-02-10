@@ -41,3 +41,7 @@ def send_monthly_savings_statement():
             recipient_list=[user.email],
             fail_silently=False,
         )
+
+@shared_task
+def test_task():
+    print("Celery is working!")
