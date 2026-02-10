@@ -27,8 +27,10 @@ SECRET_KEY = 'django-insecure-_aqvmf7h2wv@$58vj&yr(rmbn6qa21@9@whx(k8_w$je%5ar3q
 DEBUG = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['sri-webie.onrender.com', 'localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
