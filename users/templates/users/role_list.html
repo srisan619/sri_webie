@@ -6,7 +6,7 @@
     {%if request.user.role.role_name == "admin" %}
         <a href="/roles/create/" class="btn btn-success">New</a>
     {%endif%}
-
+    <div class="table-responsive">
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
@@ -31,4 +31,5 @@
             {%endfor%}
         </tbody>
     </table>
+    </div>
 {%endblock%}
