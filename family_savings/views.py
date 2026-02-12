@@ -225,3 +225,37 @@ def export_family_savings(request):
 
     wb.save(response)
     return response
+
+@login_required
+def family_savings_report(request):
+    users = User.objects.filter(
+        is_active=True
+    ).exclude(role__role_name="auditor")
+
+    report_data = []
+    grand_total = 0
+
+    for index, user in enumerate(users, start=1):
+        savings = MonthlySaving.objects.filter(
+            user=user,
+            amount__gt=0
+        )
+        months_count = savings.count()
+        total_amount = savings.aggregate(
+            total=Sum("amount")
+        )["total"] or 0
+
+        grand_total+=total_amount
+        report_data.append({
+            "sno": index,
+            "name": user.first_name,
+            "months_count": months_count,
+            "total_amount": total_amount
+        })
+    
+    context={
+        "report_data": report_data,
+        "grand_total": grand_total
+    }
+
+    return render(request, "family_savings/family_savings_report.html", context)

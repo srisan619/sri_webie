@@ -67,14 +67,17 @@
                                 <li >
                                     <a href="{%url 'family_savings_view'%}" class="dropdown-item">Monthly Savings</a>
                                 </li>
+                                <li>
+                                    <a href="{%url 'family_savings_report'%}" class="dropdown-item">Reports</a>
+                                </li>
+                                <li>
+                                    <a href="{%url 'document_list'%}" class="dropdown-item">Documents</a>
+                                </li>
                                 {% if request.user.role.role_name == "admin" %}
                                     <li>
                                         <a href="{%url 'savings_audit_log'%}" class="dropdown-item">Savings Audit Logs</a>
                                     </li>
-                                {%endif%}
-                                <li>
-                                    <a href="{%url 'document_list'%}" class="dropdown-item">Documents</a>
-                                </li>
+                                {%endif%}                                
                             </ul>
                         </li>
                         <li class="nav-item">

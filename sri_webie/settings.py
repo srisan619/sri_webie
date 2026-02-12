@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'documents',
     'family_savings',
     'common',
-    "django_celery_beat"
+    "django_celery_beat",
+    "django.contrib.humanize"
 ]
 
 MIDDLEWARE = [

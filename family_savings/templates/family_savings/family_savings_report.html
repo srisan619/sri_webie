@@ -1,0 +1,38 @@
+{%extends "users/base.html"%}
+{% load humanize %}
+
+{%block content%}
+<div class="container mt-4">
+    <h4 class="mb-3">Family Savings Report</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>S. No</th>
+                    <th>Family Member</th>
+                    <th class="text-center">No of months contributed</th>
+                    <th class="text-center">Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for row in report_data%}
+                <tr>
+                    <td>{{row.sno}}</td>
+                    <td>{{row.name}}</td>
+                    <td class="text-center">{{row.months_count}}</td>
+                    <td class="text-end fw-bold">₹ {{row.total_amount|intcomma}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+            <tfoot class="table-warning">
+                <tr>
+                    <th colspan="3">Total Amount</th>
+                    <th class="text-end">
+                        ₹ {{grand_total|intcomma}}
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+{%endblock%}
